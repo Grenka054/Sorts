@@ -96,7 +96,26 @@ void sort_insert_bin( int* arr, size_t size )
 
 void sort_shell_div2( int* arr, size_t size )
 {
-
+    //ѕозици€ дл€ temp
+    int j{ 0 };
+    //Ќачинаем с большого промежутка, затем его уменьшаем
+    //gap - шаг расчЄски
+    for (int gap{ int(size) / 2 }; gap > 0; gap /= 2) {
+        //»дем по элементам от a[gap] и правее
+        for (int i{ gap }; i < size; ++i) {
+            // сохран€ем [i] в temp и делаем отверстие в позиции i
+            int temp = arr[i];
+            //сдвигаем ранее отсортированные элементы до тех пор,
+            //пока не будет найдено правильное местоположение дл€ a[i]
+            j = i;
+            while (j >= gap && arr[j - gap] > temp) {
+                arr[j] = arr[j - gap];
+                j -= gap; //Ўаг gap влево
+            }
+            //помещаем temp в правильное место
+            arr[j] = temp;
+        }
+    }
 }
 
 void sort_shell_pow3( int* arr, size_t size )
@@ -109,14 +128,30 @@ void sort_heap( int* arr, size_t size )
 
 }
 
-void sort_quick_rec( int* arr, size_t size )
+void sort_quick_rec(int* arr, size_t size)
 {
-
+    if (size > 1) {
+        int pivot = arr[size - 1];
+        int i = -1;
+        //ѕроходим по массиву, сдвигаем маленькие влево и считаем их кол-во
+        for (int j{ 0 }; j < size - 1; ++j) {
+            if (arr[j] < pivot) {
+                swap(arr[++i], arr[j]);
+            }
+        }
+        //ѕоставим пилотный элемент сразу же после маленьких
+        swap(arr[i + 1], arr[size - 1]);
+        
+        //Ћева€ часть
+        sort_quick_rec(arr, i + 1);
+        //ѕрава€ часть
+        sort_quick_rec(arr + i + 2, size - i - 2);
+    }
 }
 
 void sort_quick_nonrec( int* arr, size_t size )
 {
-
+    
 }
 
 void sort_merge( int* arr, size_t size )
@@ -177,12 +212,12 @@ int main()
             arr_unsorted = new int[5]{ 5, 4, 3, 2, 1 };
         }
 
-//        exec_sort( "Quick nonrecursive:",  sort_quick_nonrec );
-//        exec_sort( "Quick:",  sort_quick_rec );
-//        exec_sort( "Heap:",   sort_heap );
-//        exec_sort( "Shell:",  sort_shell_div2 );
-//        exec_sort( "Shell:",  sort_shell_pow3 );
-//        exec_sort( "Merge:",  sort_merge );
+//        exec_sort( "Quick nonrecursive:"arr_unsorted, size,  sort_quick_nonrec );
+        exec_sort(arr_unsorted, size, sort_quick_rec, "Quick:" );
+//        exec_sort( arr_unsorted, size,   sort_heap, "Heap:" );
+        exec_sort(arr_unsorted, size,  sort_shell_div2, "Shell:");
+//        exec_sort( arr_unsorted, size,  sort_shell_pow3, "Shell:" );
+//        exec_sort( arr_unsorted, size,  sort_merge, "Merge:" );
         exec_sort( arr_unsorted, size, sort_insert_bin, "InsertBin:" );
         exec_sort( arr_unsorted, size, sort_insert_lin, "InsertLin:" );
         exec_sort( arr_unsorted, size, sort_select, "Select:" );
