@@ -4,6 +4,7 @@
 #include <ctime>      // clock
 #include <cstdlib>    // rand
 #include <cmath>      // pow
+#include <vector>
 
 using namespace std;
 
@@ -197,14 +198,94 @@ void sort_quick_rec(int* arr, size_t size)
     }
 }
 
-void sort_quick_nonrec( int* arr, size_t size )
+void sort_quick_nonrec(int* arr, size_t size)
 {
-    
+    int pivot{ 0 }, i{ -1 };
+    vector <int> vec = { 0,(int)size }; //ћассив, где четные - индекс начала отрезка,
+                                        //нечетные - его размер
+    for (int k{ 0 }; k <= vec.size() - 2; k += 2) {
+        i = -1;
+        pivot = arr[vec[k + 1] - 1];
+        //ѕроходим по массиву, сдвигаем маленькие влево и считаем их кол-во
+        for (int j{ vec[k] }; j < vec[k + 1] - 1; ++j)
+            if (arr[j] < pivot) {
+                i++;
+                swap(arr[vec[k] + i], arr[j]);
+            }
+        swap(arr[vec[k] + i + 1], arr[vec[k + 1] - 1]);
+        if (i + 1 > 1) { //–азмер отрезка должен быть больше 1
+            vec.push_back(vec[k]);
+            vec.push_back(vec[k] + i + 1);
+        }
+        if (vec[k + 1] - vec[k] - i - 2 > 1) { //–азмер отрезка должен быть больше 1
+            vec.push_back(vec[k] + i + 2);
+            vec.push_back(vec[k + 1]);
+        }
+    }
+}
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define fget(f,x) fread(&x, sizeof(x), 1, f)
+#define fput(f,x) fwrite(&x, sizeof(x), 1, f)
+
+void merge(int *a1, int len1, int *a2, int len2, int *ar) {
+    /* —ли€ние отсортированных массивов a1 длины len1 и а2
+    длины len2 в массив аr */
+    int i = 0, j = 0, k = 0;
+    int x = 0;
+    while ((i < len1) || (j < len2)) { /* пока есть элементы */
+        if (i == len1) /* 1-€ кончилась: берем из 2-й */
+            x = a2[j++];
+        else
+            if (j == len2) /* 2-€ кончилась: берем из 1-й */
+                x = a1[i++];
+            else
+                if (a1[i] < a2[j]) /* выбираем наименьший */
+                    x = a1[i++];
+                else x = a2[j++];
+        ar[k++] = x;
+    }
+}
+const int N = INT16_MAX;
+static int aw[N]; /* вспомогательный глобальный массив
+дл€ сли€ни€ */
+
+void sort_merging(int a[], int R) {
+/* L,R - границы сортируемой части массива а */
+    int i, M;
+    M = R / 2;
+    if (0 < M)
+        sort_merging(a, M);
+    if (M + 1 < R)
+        sort_merging(a + M + 1, R);
+    /* сли€ние частей в aw */
+    merge(a, M - 1, a + M + 1, R - M, aw);
+    /* копирование в исход.фрагмент */
+    for (i = 0; i <= R; i++)
+        a[i] = aw[i];
+}
+
+void sort_merging(int a[], int L, int R) {
+    int i, M;
+    M = (L + R) / 2;
+    if (L < M)
+        sort_merging(a, L, M);
+    if (M + 1 < R)
+        sort_merging(a, M + 1, R);
+    /* сли€ние частей в aw */
+    merge(&a[L], M - L + 1, &a[M + 1], R - M, &aw[L]);
+    /* копирование в исход.фрагмент */
+    for (i = L; i <= R; i++)
+        a[i] = aw[i];
 }
 
 void sort_merge( int* arr, size_t size )
 {
-
+    //sort_merging(arr, size - 1);
+    sort_merging(arr, 0, size - 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -260,12 +341,12 @@ int main()
             arr_unsorted = new int[5]{ 5, 4, 3, 2, 1 };
         }
 
-//        exec_sort( "Quick nonrecursive:"arr_unsorted, size,  sort_quick_nonrec );
+        exec_sort(arr_unsorted, size, sort_quick_nonrec, "Quick nonrecursive:" );
         exec_sort(arr_unsorted, size, sort_quick_rec, "Quick:" );
         exec_sort( arr_unsorted, size,   sort_heap, "Heap:" );
-        exec_sort(arr_unsorted, size,  sort_shell_div2, "Shell:");
+        exec_sort(arr_unsorted, size,  sort_shell_div2, "Shell:" );
         exec_sort( arr_unsorted, size,  sort_shell_pow3, "Shell:" );
-//        exec_sort( arr_unsorted, size,  sort_merge, "Merge:" );
+        exec_sort( arr_unsorted, size,  sort_merge, "Merge:" );
         exec_sort( arr_unsorted, size, sort_insert_bin, "InsertBin:" );
         exec_sort( arr_unsorted, size, sort_insert_lin, "InsertLin:" );
         exec_sort( arr_unsorted, size, sort_select, "Select:" );
