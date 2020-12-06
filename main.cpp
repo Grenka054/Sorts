@@ -224,18 +224,11 @@ void sort_quick_nonrec(int* arr, size_t size)
     }
 }
 
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#define fget(f,x) fread(&x, sizeof(x), 1, f)
-#define fput(f,x) fwrite(&x, sizeof(x), 1, f)
-
 void merge(int *a1, int len1, int *a2, int len2, int *ar) {
     /* Слияние отсортированных массивов a1 длины len1 и а2
     длины len2 в массив аr */
-    int i = 0, j = 0, k = 0;
-    int x = 0;
+    int i{ 0 }, M{ 0 }, j{ 0 }, k{ 0 };
+    int x{ 0 };
     while ((i < len1) || (j < len2)) { /* пока есть элементы */
         if (i == len1) /* 1-я кончилась: берем из 2-й */
             x = a2[j++];
@@ -249,42 +242,27 @@ void merge(int *a1, int len1, int *a2, int len2, int *ar) {
         ar[k++] = x;
     }
 }
+
 const int N = INT16_MAX;
 static int aw[N]; /* вспомогательный глобальный массив
 для слияния */
 
-void sort_merging(int a[], int R) {
-/* L,R - границы сортируемой части массива а */
-    int i, M;
-    M = R / 2;
-    if (0 < M)
-        sort_merging(a, M);
-    if (M + 1 < R)
-        sort_merging(a + M + 1, R);
-    /* слияние частей в aw */
-    merge(a, M - 1, a + M + 1, R - M, aw);
-    /* копирование в исход.фрагмент */
-    for (i = 0; i <= R; i++)
-        a[i] = aw[i];
-}
 
 void sort_merging(int a[], int L, int R) {
-    int i, M;
-    M = (L + R) / 2;
+    int M{ (L + R) / 2 };
     if (L < M)
         sort_merging(a, L, M);
     if (M + 1 < R)
         sort_merging(a, M + 1, R);
     /* слияние частей в aw */
-    merge(&a[L], M - L + 1, &a[M + 1], R - M, &aw[L]);
+    merge(a + L, M - L + 1, a + M + 1, R - M, aw + L);
     /* копирование в исход.фрагмент */
-    for (i = L; i <= R; i++)
+    for (int i = L; i <= R; i++)
         a[i] = aw[i];
 }
 
 void sort_merge( int* arr, size_t size )
 {
-    //sort_merging(arr, size - 1);
     sort_merging(arr, 0, size - 1);
 }
 
