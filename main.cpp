@@ -3,6 +3,7 @@
 #include <cstring>    // memcpy
 #include <ctime>      // clock
 #include <cstdlib>    // rand
+#include <cmath>      // pow
 
 using namespace std;
 
@@ -120,12 +121,59 @@ void sort_shell_div2( int* arr, size_t size )
 
 void sort_shell_pow3( int* arr, size_t size )
 {
+    //Позиция для temp
+    int j{ 0 };
+    //Начинаем с большого промежутка, затем его уменьшаем
+    int gap = pow(size, (float)2 / 3); //шаг расчёски
+    while ( true ) {
+        //Идем по элементам от a[gap] и правее
+        for (int i{ gap }; i < size; ++i) {
+            // сохраняем [i] в temp и делаем отверстие в позиции i
+            int temp = arr[i];
+            //сдвигаем ранее отсортированные элементы до тех пор,
+            //пока не будет найдено правильное местоположение для a[i]
+            j = i;
+            while (j >= gap && arr[j - gap] > temp) {
+                arr[j] = arr[j - gap];
+                j -= gap; //Шаг gap влево
+            }
+            //помещаем temp в правильное место
+            arr[j] = temp;
+        }
+        if (gap == 1) break;
+        gap = pow(gap, (float)2 / 3);
+    }
+}
 
+
+void siftDown(int* arr, int root, size_t size) {
+    int maxChild{ 0 }; //индекс максимального потомка
+    bool done{ false }; //флаг, построено ли дерево
+    while (root * 2 <= size - 1 && !done) { //пока не вышли за пределы массива и дерево не построено
+        if (root * 2 == size - 1) //если мы в последнем ряду
+            maxChild = size - 1; //запоминаем один единственный потомок
+        else if (arr[root * 2] > arr[root * 2 + 1]) //иначе запоминаем больший потомок из двух
+            maxChild = root * 2;
+        else
+            maxChild = root * 2 + 1;
+        if (arr[root] < arr[maxChild]) { //если элемент вершины меньше максимального потомка, меняем местами
+            swap(arr[root], arr[maxChild]);
+            root = maxChild;
+        }
+        else
+            done = 1; // пирамида сформирована
+    }
 }
 
 void sort_heap( int* arr, size_t size )
 {
-
+    for (int i{ (int)size / 2 - 1 }; i >= 0; i--) {
+        siftDown(arr, i, size - 1);
+    }
+    for (int i{ (int)size - 1 }; i >= 1; i--) {
+        swap(arr[0], arr[i]);
+        siftDown(arr, 0, i);
+    }
 }
 
 void sort_quick_rec(int* arr, size_t size)
@@ -214,9 +262,9 @@ int main()
 
 //        exec_sort( "Quick nonrecursive:"arr_unsorted, size,  sort_quick_nonrec );
         exec_sort(arr_unsorted, size, sort_quick_rec, "Quick:" );
-//        exec_sort( arr_unsorted, size,   sort_heap, "Heap:" );
+        exec_sort( arr_unsorted, size,   sort_heap, "Heap:" );
         exec_sort(arr_unsorted, size,  sort_shell_div2, "Shell:");
-//        exec_sort( arr_unsorted, size,  sort_shell_pow3, "Shell:" );
+        exec_sort( arr_unsorted, size,  sort_shell_pow3, "Shell:" );
 //        exec_sort( arr_unsorted, size,  sort_merge, "Merge:" );
         exec_sort( arr_unsorted, size, sort_insert_bin, "InsertBin:" );
         exec_sort( arr_unsorted, size, sort_insert_lin, "InsertLin:" );
