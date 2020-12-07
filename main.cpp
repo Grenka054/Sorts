@@ -202,7 +202,7 @@ void sort_quick_nonrec(int* arr, size_t size)
 {
     int pivot{ 0 }, i{ -1 };
     vector <int> vec = { 0,(int)size }; //ћассив, где четные - индекс начала отрезка,
-                                        //нечетные - его размер
+                                        //нечетные - его размер.
     for (int k{ 0 }; k <= vec.size() - 2; k += 2) {
         i = -1;
         pivot = arr[vec[k + 1] - 1];
@@ -227,8 +227,7 @@ void sort_quick_nonrec(int* arr, size_t size)
 void merge(int *a1, int len1, int *a2, int len2, int *ar) {
     /* —ли€ние отсортированных массивов a1 длины len1 и а2
     длины len2 в массив аr */
-    int i{ 0 }, M{ 0 }, j{ 0 }, k{ 0 };
-    int x{ 0 };
+    int i{ 0 }, M{ 0 }, j{ 0 }, k{ 0 }, x{ 0 };
     while ((i < len1) || (j < len2)) { /* пока есть элементы */
         if (i == len1) /* 1-€ кончилась: берем из 2-й */
             x = a2[j++];
@@ -243,27 +242,25 @@ void merge(int *a1, int len1, int *a2, int len2, int *ar) {
     }
 }
 
-const int N = INT16_MAX;
-static int aw[N]; /* вспомогательный глобальный массив
-дл€ сли€ни€ */
-
-
-void sort_merging(int a[], int L, int R) {
-    int M{ (L + R) / 2 };
-    if (L < M)
-        sort_merging(a, L, M);
-    if (M + 1 < R)
-        sort_merging(a, M + 1, R);
-    /* сли€ние частей в aw */
-    merge(a + L, M - L + 1, a + M + 1, R - M, aw + L);
-    /* копирование в исход.фрагмент */
-    for (int i = L; i <= R; i++)
-        a[i] = aw[i];
+void sort_merging(int *a, int left, int right, int *aw) {
+	int mediana{ (left + right) / 2 };
+	if (left < mediana) {
+		sort_merging(a, left, mediana, aw);
+	}
+	if (mediana + 1 < right) {
+		sort_merging(a, mediana + 1, right, aw);
+	}
+    merge(a + left, mediana - left + 1, a + mediana + 1, right - mediana, aw + left); //сли€ние частей в aw
+    //копирование в исход.фрагмент
+	for (int i = left; i <= right; i++) {
+		a[i] = aw[i];
+	}
 }
 
 void sort_merge( int* arr, size_t size )
 {
-    sort_merging(arr, 0, size - 1);
+	int *aw = new int[size]; //вспомогательный глобальный массив дл€ сли€ни€
+	sort_merging(arr, 0, size - 1, aw);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
